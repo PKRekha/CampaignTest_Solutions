@@ -1,0 +1,65 @@
+
+/*Return the names of all salespeople that have an order with George*/
+
+
+SELECT Salesperson.Name
+FROM Customer JOIN ORDERS
+	ON Customer.CustomerID=ORDERS.CUSTOMERID
+		JOIN Salesperson
+		ON ORDERS.SALESPERSONID=Salesperson.SalespersonID
+WHERE Customer.Name='GEORGE'
+
+/*-------------------------------------------------------------*/
+
+/*Return the names of all salespeople that do not have any order with George*/
+
+SELECT Salesperson.Name
+FROM Salesperson JOIN Orders
+ON Orders.SalespersonID=Salesperson.SalespersonID
+JOIN Customer
+ON Customer.CustomerID=Orders.CustomerID
+WHERE Customer.CustomerID !=4 and Salesperson.SalespersonID Not IN(SELECT SalespersonID FROM Orders WHERE CustomerID=4) --Customer.Name NOT LIKE 'GEORGE'
+GROUP BY (Salesperson.Name)
+
+
+/*Return the names of salespeople that have 2 or more orders.*/
+
+SELECT Salesperson.Name
+FROM ORDERS INNER JOIN Salesperson
+ON Orders.SalespersonID=Salesperson.SalespersonID
+GROUP BY Salesperson.Name
+HAVING COUNT(*)>=2
+
+/*Return the name of the salesperson with the 3rd highest salary.*/
+
+SELECT name
+FROM Salesperson
+ORDER BY Salary DESC
+OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY
+
+/*Create a new roll­up table BigOrders(where columns are CustomerID,
+TotalOrderValue), and insert into that table customers whose total Amount across all
+orders is greater than 1000*/
+
+
+CREATE TABLE BigOrders(
+	CustomerId int,
+	TotalOrderValue int
+)
+
+INSERT INTO BIGORDERS
+SELECT CustomerId, SUM(NumberOfUnits*CostOfUnit)
+from Orders
+GROUP BY (CustomerID)
+HAVING SUM(NumberOfUnits*CostOfUnit)>1000
+
+/*Return the total Amount of orders for each month, ordered by year, then month (both in
+descending order)*/
+
+SELECT  SUM(NumberOfUnits*CostOfUnit) AS TOTALAMOUNT
+FROM ORDERS
+GROUP BY DATEPART(MONTH, OrderDate), DATEPART(YEAR, OrderDate)
+ORDER BY DATEPART(YEAR, OrderDate) DESC  , DATEPART(MONTH, OrderDate) DESC 
+
+
+/*---------------------------THE END--------------------------------------*/
